@@ -68,20 +68,19 @@
     </style>
 </head>
 <body>
-    <h1>Grupe și Statistici Turneu</h1>
-    <div class="groups-container" id="statisticiTurneu"></div>
+    <h1>Grupe Turneu</h1>
+    <div class="groups-container" id="grupeTurneu"></div>
     <h1>Meciuri în Direct</h1>
     <div class="matches-container" id="meciuriTurneu"></div>
 
     <script>
-        // Function to display tournament statistics
-        function afiseazaStatisticiTurneu() {
+        // Function to display groups
+        function afiseazaGrupeTurneu() {
             const grupeTurneu = JSON.parse(localStorage.getItem('grupe_turneu'));
-            const statisticiTurneu = JSON.parse(localStorage.getItem('statistici_turneu'));
-            const statisticiTurneuDiv = document.getElementById('statisticiTurneu');
+            const grupeTurneuDiv = document.getElementById('grupeTurneu');
 
             if (grupeTurneu) {
-                statisticiTurneuDiv.innerHTML = '';
+                grupeTurneuDiv.innerHTML = '';
 
                 for (const grupa in grupeTurneu) {
                     let groupDiv = document.createElement('div');
@@ -95,19 +94,18 @@
                             </tr>`;
 
                     grupeTurneu[grupa].forEach(echipa => {
-                        const stats = statisticiTurneu?.[grupa]?.[echipa] || { echipa, MJ: 0, V: 0, E: 0, I: 0, GM: 0, GP: 0, GV: 0, P: 0 };
                         html += `
                             <tr>
-                                <td>${stats.echipa}</td>
+                                <td>${echipa}</td>
                             </tr>`;
                     });
 
                     html += `</table>`;
                     groupDiv.innerHTML = html;
-                    statisticiTurneuDiv.appendChild(groupDiv);
+                    grupeTurneuDiv.appendChild(groupDiv);
                 }
             } else {
-                statisticiTurneuDiv.innerHTML = '<p>Nu există date disponibile pentru grupe.</p>';
+                grupeTurneuDiv.innerHTML = '<p>Nu există date disponibile pentru grupe.</p>';
             }
         }
 
@@ -162,7 +160,7 @@
 
         // Display data on page load and refresh every minute
         window.onload = function() {
-            afiseazaStatisticiTurneu();
+            afiseazaGrupeTurneu();
             afiseazaMeciuri();
             setInterval(afiseazaMeciuri, 60000); // Refresh every minute to check for live matches
         };
