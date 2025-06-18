@@ -33,7 +33,7 @@
         .group h2 {
             color: white;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-            margin-top:  0;
+            margin-top: 0;
         }
         table {
             width: 100%;
@@ -145,26 +145,49 @@
             }
         }
 
+        // Function to extract matches from HTML elements
+        function extractMatches() {
+            const matchItems = document.querySelectorAll('.match-item');
+            const matches = [];
+
+            matchItems.forEach((item, index) => {
+                const span = item.querySelector('span');
+                const matchInfo = span.textContent || span.innerText;
+                const teams = matchInfo.match(/vs\s([^|]+)\s\|\s([^\s]+)/);
+                const time = matchInfo.match(/^\*\*([^\*]+)\*\*/);
+                const field = matchInfo.match(/\|\s([^\|]+)\s*$/);
+
+                if (teams && teams.length >= 3) {
+                    matches.push({
+                        time: time ? time[1] : 'Unknown Time',
+                        echipa1: teams[1].trim(),
+                        echipa2: teams[2].trim(),
+                        field: field ? field[1].trim() : 'Unknown Field'
+                    });
+                }
+            });
+
+            return matches;
+        }
+
         // Function to display live matches
         let currentMatchIndex = 0;
         function showLiveMatches() {
-            const meciuriGrupe = JSON.parse(localStorage.getItem('meciuriGrupe')) || [];
+            const matches = extractMatches();
             const liveMatchesContainer = document.getElementById('liveMatchesContainer');
 
-            if (meciuriGrupe.length === 0) {
+            if (matches.length === 0) {
                 liveMatchesContainer.innerHTML = '<p>Nu există meciuri în direct.</p>';
                 return;
             }
 
             liveMatchesContainer.innerHTML = '';
-            for (let i = currentMatchIndex; i < currentMatchIndex + 2 && i < meciuriGrupe.length; i++) {
-                const match = meciuriGrupe[i];
+            for (let i = currentMatchIndex; i < currentMatchIndex + 2 && i < matches.length; i++) {
+                const match = matches[i];
                 const matchDiv = document.createElement('div');
                 matchDiv.className = 'match';
                 matchDiv.innerHTML = `
-                    <p><strong>${match.echipa1} vs ${match.echipa2}</strong></p>
-                    <p>Scor: ${match.scor || '0-0'}</p>
-                    <p>Minut: ${match.minut || '0'}</p>
+                    <p><strong>${match.time}</strong> | ${match.field} | <strong>${match.echipa1}</strong> vs <strong>${match.echipa2}</strong></p>
                 `;
                 liveMatchesContainer.appendChild(matchDiv);
             }
@@ -172,8 +195,8 @@
 
         // Function to show next matches
         function showNextMatches() {
-            const meciuriGrupe = JSON.parse(localStorage.getItem('meciuriGrupe')) || [];
-            if (currentMatchIndex + 2 < meciuriGrupe.length) {
+            const matches = extractMatches();
+            if (currentMatchIndex + 2 < matches.length) {
                 currentMatchIndex += 2;
                 showLiveMatches();
             } else {
