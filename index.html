@@ -150,15 +150,26 @@
 
         // Function to extract matches from HTML elements
         function extractMatches() {
-            // Mock data for demonstration purposes
-            const matches = [
-                { time: '12:00', echipa1: 'Team A', echipa2: 'Team B', field: 'Field 1' },
-                { time: '13:00', echipa1: 'Team C', echipa2: 'Team D', field: 'Field 2' },
-                { time: '14:00', echipa1: 'Team E', echipa2: 'Team F', field: 'Field 3' },
-                { time: '15:00', echipa1: 'Team G', echipa2: 'Team H', field: 'Field 4' },
-                { time: '16:00', echipa1: 'Team I', echipa2: 'Team J', field: 'Field 5' },
-                { time: '17:00', echipa1: 'Team K', echipa2: 'Team L', field: 'Field 6' },
-            ];
+            const matchItems = document.querySelectorAll('.match-item');
+            const matches = [];
+            matchItems.forEach((item) => {
+                const span = item.querySelector('span');
+                const matchInfo = span.textContent || span.innerText;
+                const timeMatch = matchInfo.match(/^\*\*(.*?)\*\*/);
+                const teamsMatch = matchInfo.match(/vs\s(.*?)\s\|/);
+                const fieldMatch = matchInfo.match(/\|\s(.*?)\s*$/);
+
+                const time = timeMatch ? timeMatch[1].trim() : 'Unknown Time';
+                const teams = teamsMatch ? teamsMatch[1].split(/\s*\|\s*/) : ['Unknown Team', 'Unknown Team'];
+                const field = fieldMatch ? fieldMatch[1].trim() : 'Unknown Field';
+
+                matches.push({
+                    time: time,
+                    echipa1: teams[0].trim(),
+                    echipa2: teams[1].trim(),
+                    field: field
+                });
+            });
             return matches;
         }
 
