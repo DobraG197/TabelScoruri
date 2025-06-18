@@ -116,6 +116,18 @@
             padding: 5px;
         }
 
+        .big-score {
+            font-size: 32px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .big-score span {
+            font-size: 24px;
+        }
+
         .vs {
             align-self: center;
         }
@@ -133,6 +145,27 @@
         button:hover {
             background-color: #45a049;
         }
+
+        .edit-mode .team-select, .edit-mode .score-input {
+            display: block;
+        }
+
+        .edit-mode .big-score {
+            display: none;
+        }
+
+        .display-mode .team-select, .display-mode .score-input {
+            display: none;
+        }
+
+        .display-mode .big-score {
+            display: flex;
+        }
+
+        .team-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -144,13 +177,16 @@
             <!-- Live matches will be added here by JavaScript -->
         </div>
         <div style="text-align: center; margin-top: 20px;">
-            <button id="updateScoresBtn">Actualizează Scorurile</button>
+            <button id="toggleModeBtn">Actualizează Scorurile</button>
         </div>
     </div>
     
     <div class="groups-container" id="statisticiTurneu"></div>
 
     <script>
+        // Track current mode (edit or display)
+        let isEditMode = true;
+
         // Function to display tournament statistics
         function afiseazaStatisticiTurneu() {
             // Retrieve data from localStorage
@@ -229,6 +265,7 @@
                 matchDiv.innerHTML = `
                     <div class="teams">
                         <div class="team">
+                            <div class="team-name">${match.team1 || 'Echipa 1'}</div>
                             <select class="team-select" data-match="${index}" data-team="1">
                                 <option value="">Selectează echipa</option>
                                 ${getTeamOptions(match.team1)}
@@ -236,6 +273,7 @@
                         </div>
                         <div class="vs">vs</div>
                         <div class="team">
+                            <div class="team-name">${match.team2 || 'Echipa 2'}</div>
                             <select class="team-select" data-match="${index}" data-team="2">
                                 <option value="">Selectează echipa</option>
                                 ${getTeamOptions(match.team2)}
@@ -243,6 +281,11 @@
                         </div>
                     </div>
                     <div class="score">
+                        <div class="big-score">
+                            <span>${match.score1}</span>
+                            <span>-</span>
+                            <span>${match.score2}</span>
+                        </div>
                         <input type="number" min="0" class="score-input" data-match="${index}" data-team="1" value="${match.score1}">
                         <span>-</span>
                         <input type="number" min="0" class="score-input" data-match="${index}" data-team="2" value="${match.score2}">
@@ -251,6 +294,9 @@
                 
                 container.appendChild(matchDiv);
             });
+
+            // Set initial mode
+            toggleMode(isEditMode);
 
             // Add event listeners to selects and inputs
             document.querySelectorAll('.team-select').forEach(select => {
@@ -266,6 +312,10 @@
                             savedMatches[matchIndex].team2 = this.value;
                         }
                         localStorage.setItem('live_matches', JSON.stringify(savedMatches));
+                        
+                        // Update team name display
+                        const teamNameElement = this.closest('.team').querySelector('.team-name');
+                        teamNameElement.textContent = this.value || (teamNum === '1' ? 'Echipa 1' : 'Echipa 2');
                     }
                 });
             });
@@ -284,16 +334,32 @@
                             savedMatches[matchIndex].score2 = value;
                         }
                         localStorage.setItem('live_matches', JSON.stringify(savedMatches));
+                        
+                        // Update big score display
+                        const scoreElement = this.closest('.score').querySelector(teamNum === '1' ? '.big-score span:first-child' : '.big-score span:last-child');
+                        scoreElement.textContent = value;
                     }
                 });
             });
 
-            // Update scores button
-            document.getElementById('updateScoresBtn').addEventListener('click', function() {
-                // Here you can add logic to update tournament statistics based on live scores
-                alert('Scorurile au fost actualizate!');
-                // You would need to add the actual logic to update the tournament stats
+            // Toggle mode button
+            document.getElementById('toggleModeBtn').addEventListener('click', function() {
+                isEditMode = !isEditMode;
+                toggleMode(isEditMode);
+                this.textContent = isEditMode ? 'Actualizează Scorurile' : 'Modifică Scorurile';
             });
+        }
+
+        // Toggle between edit and display modes
+        function toggleMode(editMode) {
+            const container = document.getElementById('liveMatchesContainer');
+            if (editMode) {
+                container.classList.add('edit-mode');
+                container.classList.remove('display-mode');
+            } else {
+                container.classList.add('display-mode');
+                container.classList.remove('edit-mode');
+            }
         }
 
         // Helper function to get team options for select elements
