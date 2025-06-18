@@ -74,7 +74,7 @@
 
             const statisticiTurneuDiv = document.getElementById('statisticiTurneu');
 
-            if (grupeTurneu) {
+            if (grupeTurneu && statisticiTurneu) {
                 statisticiTurneuDiv.innerHTML = ''; // Clear previous content
 
                 for (const grupa in grupeTurneu) {
@@ -99,7 +99,7 @@
                     // Display teams in the group
                     grupeTurneu[grupa].forEach(echipa => {
                         // Get statistics for the team, if available
-                        const stats = statisticiTurneu?.[grupa]?.[echipa] || {
+                        const stats = statisticiTurneu[grupa]?.[echipa] || {
                             echipa: echipa,
                             MJ: 0, V: 0, E: 0, I: 0, GM: 0, GP: 0, GV: 0, P: 0
                         };
@@ -118,20 +118,17 @@
                             </tr>`;
                     });
 
-                    html += </table>;
+                    html += `</table>`;
                     groupDiv.innerHTML = html;
                     statisticiTurneuDiv.appendChild(groupDiv);
                 }
             } else {
-                statisticiTurneuDiv.innerHTML = '<p>Nu există date disponibile pentru grupe.</p>';
+                statisticiTurneuDiv.innerHTML = '<p>Nu există date disponibile.</p>';
             }
         }
 
-        // Display data on page load and refresh every 5 minutes
-        window.onload = function() {
-            afiseazaStatisticiTurneu();
-            setInterval(afiseazaStatisticiTurneu, 300000); // Refresh every 5 minutes (300,000 milliseconds)
-        };
+        // Display data on page load
+        window.onload = afiseazaStatisticiTurneu;
     </script>
 </body>
 </html>
