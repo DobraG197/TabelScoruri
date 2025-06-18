@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Display Groups and Matches</title>
+    <title>Display Groups and Statistics</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,7 +13,6 @@
             background-repeat: repeat;
             padding: 20px;
         }
-
         h1 {
             text-align: center;
             color: white;
@@ -21,148 +20,172 @@
             width: 50%;
             margin: 0 auto 20px auto;
         }
-
-        .groups-container, .matches-container {
+        .groups-container {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
-            margin-bottom: 30px;
         }
-
-        .group, .match {
+        .group {
             flex: 1 1 calc(50% - 20px);
             margin-bottom: 20px;
             box-sizing: border-box;
         }
-
-        .group h2, .match h2 {
+        .group h2 {
             color: white;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-            margin-top: 0;
+            margin-top:  0;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
             background-color: rgba(255, 255, 255, 0.8);
         }
-
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
-
         th {
             background-color: rgba(242, 242, 242, 0.8);
         }
-
         tr:nth-child(even) {
             background-color: rgba(249, 249, 249, 0.8);
         }
-
-        .live {
-            color: red;
-            font-weight: bold;
+        .live-matches {
+            margin-top: 30px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .live-matches h2 {
+            color: #333;
+        }
+        .match {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: rgba(249, 249, 249, 0.8);
+            border-radius: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <h1>Grupe Turneu</h1>
-    <div class="groups-container" id="grupeTurneu"></div>
-    <h1>Meciuri în Direct</h1>
-    <div class="matches-container" id="meciuriTurneu"></div>
-
+    <h1>Grupe și Statistici Turneu</h1>
+    <div class="groups-container" id="statisticiTurneu"></div>
+    <div class="live-matches">
+        <h2>Meciuri în Direct</h2>
+        <div id="liveMatchesContainer"></div>
+        <button onclick="showNextMatches()">Next</button>
+    </div>
     <script>
-        // Function to display groups
-        function afiseazaGrupeTurneu() {
+        // Function to display tournament statistics
+        function afiseazaStatisticiTurneu() {
+            // Retrieve data from localStorage
             const grupeTurneu = JSON.parse(localStorage.getItem('grupe_turneu'));
-            const grupeTurneuDiv = document.getElementById('grupeTurneu');
+            const statisticiTurneu = JSON.parse(localStorage.getItem('statistici_turneu'));
+            const statisticiTurneuDiv = document.getElementById('statisticiTurneu');
 
             if (grupeTurneu) {
-                grupeTurneuDiv.innerHTML = '';
-
+                statisticiTurneuDiv.innerHTML = ''; // Clear previous content
                 for (const grupa in grupeTurneu) {
                     let groupDiv = document.createElement('div');
                     groupDiv.className = 'group';
-
                     let html = `
                         <h2>${grupa}</h2>
                         <table>
                             <tr>
                                 <th>Echipă</th>
+                                <th>MJ</th>
+                                <th>V</th>
+                                <th>E</th>
+                                <th>Î</th>
+                                <th>GM</th>
+                                <th>GP</th>
+                                <th>GV</th>
+                                <th>P</th>
                             </tr>`;
-
+                    // Display teams in the group
                     grupeTurneu[grupa].forEach(echipa => {
+                        // Get statistics for the team, if available
+                        const stats = statisticiTurneu?.[grupa]?.[echipa] || {
+                            echipa: echipa,
+                            MJ: 0, V: 0, E: 0, I: 0, GM: 0, GP: 0, GV: 0, P: 0
+                        };
                         html += `
                             <tr>
-                                <td>${echipa}</td>
+                                <td>${stats.echipa}</td>
+                                <td>${stats.MJ}</td>
+                                <td>${stats.V}</td>
+                                <td>${stats.E}</td>
+                                <td>${stats.I}</td>
+                                <td>${stats.GM}</td>
+                                <td>${stats.GP}</td>
+                                <td>${stats.GV}</td>
+                                <td>${stats.P}</td>
                             </tr>`;
                     });
-
                     html += `</table>`;
                     groupDiv.innerHTML = html;
-                    grupeTurneuDiv.appendChild(groupDiv);
+                    statisticiTurneuDiv.appendChild(groupDiv);
                 }
             } else {
-                grupeTurneuDiv.innerHTML = '<p>Nu există date disponibile pentru grupe.</p>';
+                statisticiTurneuDiv.innerHTML = '<p>Nu există date disponibile pentru grupe.</p>';
             }
         }
 
-        // Function to display matches
-        function afiseazaMeciuri() {
-            const meciuriHTML = localStorage.getItem('meciuriGrupe');
-            const meciuriTurneuDiv = document.getElementById('meciuriTurneu');
+        // Function to display live matches
+        let currentMatchIndex = 0;
+        function showLiveMatches() {
+            const meciuriGrupe = JSON.parse(localStorage.getItem('meciuriGrupe')) || [];
+            const liveMatchesContainer = document.getElementById('liveMatchesContainer');
 
-            if (meciuriHTML) {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(meciuriHTML, 'text/html');
-                const matchItems = doc.querySelectorAll('.match-item');
+            if (meciuriGrupe.length === 0) {
+                liveMatchesContainer.innerHTML = '<p>Nu există meciuri în direct.</p>';
+                return;
+            }
 
-                meciuriTurneuDiv.innerHTML = '';
+            liveMatchesContainer.innerHTML = '';
+            for (let i = currentMatchIndex; i < currentMatchIndex + 2 && i < meciuriGrupe.length; i++) {
+                const match = meciuriGrupe[i];
+                const matchDiv = document.createElement('div');
+                matchDiv.className = 'match';
+                matchDiv.innerHTML = `
+                    <p><strong>${match.echipa1} vs ${match.echipa2}</strong></p>
+                    <p>Scor: ${match.scor || '0-0'}</p>
+                    <p>Minut: ${match.minut || '0'}</p>
+                `;
+                liveMatchesContainer.appendChild(matchDiv);
+            }
+        }
 
-                const now = new Date();
-                const currentHours = now.getHours();
-                const currentMinutes = now.getMinutes();
-
-                matchItems.forEach(matchItem => {
-                    const span = matchItem.querySelector('span');
-                    const matchText = span.textContent || span.innerText;
-                    const timeMatch = matchText.match(/(\d+:\d+\s[AP]M)/);
-
-                    if (timeMatch) {
-                        const matchTimeStr = timeMatch[1];
-                        const [matchTime, period] = matchTimeStr.split(' ');
-                        let [hours, minutes] = matchTime.split(':').map(Number);
-
-                        // Convert to 24-hour format for comparison
-                        if (period === 'PM' && hours !== 12) {
-                            hours += 12;
-                        } else if (period === 'AM' && hours === 12) {
-                            hours = 0;
-                        }
-
-                        const isLive = currentHours === hours && currentMinutes >= minutes && currentMinutes < minutes + 25;
-
-                        const matchDiv = document.createElement('div');
-                        matchDiv.className = 'match';
-                        matchDiv.innerHTML = `
-                            <span>${matchText}</span>
-                            ${isLive ? '<span class="live"> In Direct</span>' : ''}
-                        `;
-                        meciuriTurneuDiv.appendChild(matchDiv);
-                    }
-                });
+        // Function to show next matches
+        function showNextMatches() {
+            const meciuriGrupe = JSON.parse(localStorage.getItem('meciuriGrupe')) || [];
+            if (currentMatchIndex + 2 < meciuriGrupe.length) {
+                currentMatchIndex += 2;
+                showLiveMatches();
             } else {
-                meciuriTurneuDiv.innerHTML = '<p>Nu există date disponibile pentru meciuri.</p>';
+                alert('Nu mai sunt meciuri de afișat.');
             }
         }
 
-        // Display data on page load and refresh every minute
+        // Display data on page load and refresh every 5 minutes
         window.onload = function() {
-            afiseazaGrupeTurneu();
-            afiseazaMeciuri();
-            setInterval(afiseazaMeciuri, 60000); // Refresh every minute to check for live matches
+            afiseazaStatisticiTurneu();
+            showLiveMatches();
+            setInterval(afiseazaStatisticiTurneu, 300000); // Refresh every 5 minutes (300,000 milliseconds)
         };
     </script>
 </body>
