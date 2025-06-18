@@ -13,7 +13,6 @@
             background-repeat: repeat;
             padding: 20px;
         }
-
         h1 {
             text-align: center;
             color: white;
@@ -21,41 +20,34 @@
             width: 50%;
             margin: 0 auto 20px auto;
         }
-
         .groups-container {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
         }
-
         .group {
             flex: 1 1 calc(50% - 20px);
             margin-bottom: 20px;
             box-sizing: border-box;
         }
-
         .group h2 {
             color: white;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
             margin-top: 0;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
             background-color: rgba(255, 255, 255, 0.8);
         }
-
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
-
         th {
             background-color: rgba(242, 242, 242, 0.8);
         }
-
         tr:nth-child(even) {
             background-color: rgba(249, 249, 249, 0.8);
         }
@@ -64,23 +56,18 @@
 <body>
     <h1>Grupe și Statistici Turneu</h1>
     <div class="groups-container" id="statisticiTurneu"></div>
-
     <script>
         // Function to display tournament statistics
         function afiseazaStatisticiTurneu() {
             // Retrieve data from localStorage
             const grupeTurneu = JSON.parse(localStorage.getItem('grupe_turneu'));
             const statisticiTurneu = JSON.parse(localStorage.getItem('statistici_turneu'));
-
             const statisticiTurneuDiv = document.getElementById('statisticiTurneu');
-
-            if (grupeTurneu && statisticiTurneu) {
+            if (grupeTurneu) {
                 statisticiTurneuDiv.innerHTML = ''; // Clear previous content
-
                 for (const grupa in grupeTurneu) {
                     let groupDiv = document.createElement('div');
                     groupDiv.className = 'group';
-
                     let html = `
                         <h2>${grupa}</h2>
                         <table>
@@ -95,15 +82,13 @@
                                 <th>GV</th>
                                 <th>P</th>
                             </tr>`;
-
                     // Display teams in the group
                     grupeTurneu[grupa].forEach(echipa => {
                         // Get statistics for the team, if available
-                        const stats = statisticiTurneu[grupa]?.[echipa] || {
+                        const stats = statisticiTurneu?.[grupa]?.[echipa] || {
                             echipa: echipa,
                             MJ: 0, V: 0, E: 0, I: 0, GM: 0, GP: 0, GV: 0, P: 0
                         };
-
                         html += `
                             <tr>
                                 <td>${stats.echipa}</td>
@@ -117,18 +102,19 @@
                                 <td>${stats.P}</td>
                             </tr>`;
                     });
-
                     html += `</table>`;
                     groupDiv.innerHTML = html;
                     statisticiTurneuDiv.appendChild(groupDiv);
                 }
             } else {
-                statisticiTurneuDiv.innerHTML = '<p>Nu există date disponibile.</p>';
+                statisticiTurneuDiv.innerHTML = '<p>Nu există date disponibile pentru grupe.</p>';
             }
         }
-
-        // Display data on page load
-        window.onload = afiseazaStatisticiTurneu;
+        // Display data on page load and refresh every 5 minutes
+        window.onload = function() {
+            afiseazaStatisticiTurneu();
+            setInterval(afiseazaStatisticiTurneu, 300000); // Refresh every 5 minutes (300,000 milliseconds)
+        };
     </script>
 </body>
 </html>
