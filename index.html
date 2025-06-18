@@ -1,105 +1,267 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Turneu - 4 Grupe</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Groups and Statistics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: repeat;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            width: 50%;
+            margin: 0 auto 20px auto;
+        }
+
+        .groups-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .group {
+            flex: 1 1 calc(50% - 20px);
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        .group h2 {
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            margin-top: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: rgba(242, 242, 242, 0.8);
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(249, 249, 249, 0.8);
+        }
+
+        .score-update {
+            margin-top: 30px;
+            background-color: rgba(255, 255, 255, 0.85);
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .score-update label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        .score-update input, .score-update select, .score-update button {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        .score-update button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .score-update button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
+    <h1>Grupe și Statistici Turneu</h1>
+    <div class="groups-container" id="statisticiTurneu"></div>
 
-<h2>Selectează grupa:</h2>
-<select id="selectGrupa"></select>
+    <div class="score-update">
+        <h2>Actualizare Scor</h2>
+        <label for="grupa">Grupa:</label>
+        <select id="grupa"></select>
 
-<h2>Selectează echipa:</h2>
-<select id="selectEchipa"></select>
+        <label for="echipa1">Echipa 1:</label>
+        <select id="echipa1"></select>
 
-<h2>Echipe din grupa selectată:</h2>
-<ul id="listaEchipe"></ul>
+        <label for="echipa2">Echipa 2:</label>
+        <select id="echipa2"></select>
 
-<script>
-  // Date demo cu 4 grupe și 4 echipe fiecare
-  const grupeTurneuDemo = {
-    "Grupa A": ["Echipa A1", "Echipa A2", "Echipa A3", "Echipa A4"],
-    "Grupa B": ["Echipa B1", "Echipa B2", "Echipa B3", "Echipa B4"],
-    "Grupa C": ["Echipa C1", "Echipa C2", "Echipa C3", "Echipa C4"],
-    "Grupa D": ["Echipa D1", "Echipa D2", "Echipa D3", "Echipa D4"]
-  };
+        <label for="scor1">Scor Echipa 1:</label>
+        <input type="number" id="scor1" min="0">
 
-  // Inițializează localStorage dacă nu există deja date
-  if (!localStorage.getItem('grupe_turneu')) {
-    localStorage.setItem('grupe_turneu', JSON.stringify(grupeTurneuDemo));
-  }
+        <label for="scor2">Scor Echipa 2:</label>
+        <input type="number" id="scor2" min="0">
 
-  if (!localStorage.getItem('statistici_turneu')) {
-    const initStats = {};
-    for (const grupa in grupeTurneuDemo) {
-      initStats[grupa] = {};
-      for (const echipa of grupeTurneuDemo[grupa]) {
-        initStats[grupa][echipa] = { echipa, MJ:0, V:0, E:0, I:0, GM:0, GP:0, GV:0, P:0 };
-      }
-    }
-    localStorage.setItem('statistici_turneu', JSON.stringify(initStats));
-  }
+        <button onclick="actualizeazaScor()">Actualizează Scor</button>
+    </div>
 
-  const grupeTurneu = JSON.parse(localStorage.getItem('grupe_turneu'));
+    <script>
+        function afiseazaStatisticiTurneu() {
+            const grupeTurneu = JSON.parse(localStorage.getItem('grupe_turneu'));
+            const statisticiTurneu = JSON.parse(localStorage.getItem('statistici_turneu'));
+            const container = document.getElementById('statisticiTurneu');
+            container.innerHTML = '';
 
-  // Elemente DOM
-  const selectGrupa = document.getElementById('selectGrupa');
-  const selectEchipa = document.getElementById('selectEchipa');
-  const listaEchipe = document.getElementById('listaEchipe');
+            if (grupeTurneu) {
+                for (const grupa in grupeTurneu) {
+                    let groupDiv = document.createElement('div');
+                    groupDiv.className = 'group';
 
-  // Populează dropdown-ul cu grupele
-  function populareGrupe() {
-    selectGrupa.innerHTML = '';
-    for (const grupa in grupeTurneu) {
-      const opt = document.createElement('option');
-      opt.value = grupa;
-      opt.textContent = grupa;
-      selectGrupa.appendChild(opt);
-    }
-  }
+                    let html = `
+                        <h2>${grupa}</h2>
+                        <table>
+                            <tr>
+                                <th>Echipă</th>
+                                <th>MJ</th>
+                                <th>V</th>
+                                <th>E</th>
+                                <th>Î</th>
+                                <th>GM</th>
+                                <th>GP</th>
+                                <th>GV</th>
+                                <th>P</th>
+                            </tr>`;
 
-  // Populează dropdown-ul cu echipele din grupa selectată
-  function populareEchipe(grupaSelectata) {
-    selectEchipa.innerHTML = '';
-    const echipe = grupeTurneu[grupaSelectata];
-    for (const echipa of echipe) {
-      const opt = document.createElement('option');
-      opt.value = echipa;
-      opt.textContent = echipa;
-      selectEchipa.appendChild(opt);
-    }
-  }
+                    grupeTurneu[grupa].forEach(echipa => {
+                        const stats = statisticiTurneu?.[grupa]?.[echipa] || {
+                            echipa, MJ: 0, V: 0, E: 0, I: 0, GM: 0, GP: 0, GV: 0, P: 0
+                        };
 
-  // Afișează lista echipelor din grupa selectată
-  function afiseazaListaEchipe(grupaSelectata) {
-    listaEchipe.innerHTML = '';
-    const echipe = grupeTurneu[grupaSelectata];
-    for (const echipa of echipe) {
-      const li = document.createElement('li');
-      li.textContent = echipa;
-      listaEchipe.appendChild(li);
-    }
-  }
+                        html += `
+                            <tr>
+                                <td>${stats.echipa}</td>
+                                <td>${stats.MJ}</td>
+                                <td>${stats.V}</td>
+                                <td>${stats.E}</td>
+                                <td>${stats.I}</td>
+                                <td>${stats.GM}</td>
+                                <td>${stats.GP}</td>
+                                <td>${stats.GV}</td>
+                                <td>${stats.P}</td>
+                            </tr>`;
+                    });
 
-  // Eveniment când se schimbă grupa selectată
-  selectGrupa.addEventListener('change', function() {
-    const grupaAleasa = this.value;
-    populareEchipe(grupaAleasa);
-    afiseazaListaEchipe(grupaAleasa);
-  });
+                    html += `</table>`;
+                    groupDiv.innerHTML = html;
+                    container.appendChild(groupDiv);
+                }
+            } else {
+                container.innerHTML = '<p>Nu există date disponibile pentru grupe.</p>';
+            }
+        }
 
-  // Inițializare pagină
-  function init() {
-    populareGrupe();
-    const primaGrupa = selectGrupa.options[0].value;
-    populareEchipe(primaGrupa);
-    afiseazaListaEchipe(primaGrupa);
-  }
+        function populeazaDropdownuri() {
+            const grupeTurneu = JSON.parse(localStorage.getItem('grupe_turneu'));
+            const grupaSelect = document.getElementById('grupa');
+            grupaSelect.innerHTML = '';
 
-  init();
+            for (const grupa in grupeTurneu) {
+                let opt = document.createElement('option');
+                opt.value = grupa;
+                opt.textContent = grupa;
+                grupaSelect.appendChild(opt);
+            }
 
-</script>
+            grupaSelect.addEventListener('change', () => populeazaEchipe(grupaSelect.value));
+            populeazaEchipe(grupaSelect.value);
+        }
 
+        function populeazaEchipe(grupa) {
+            const grupeTurneu = JSON.parse(localStorage.getItem('grupe_turneu'));
+            const echipe = grupeTurneu[grupa] || [];
+
+            const echipa1 = document.getElementById('echipa1');
+            const echipa2 = document.getElementById('echipa2');
+
+            echipa1.innerHTML = '';
+            echipa2.innerHTML = '';
+
+            echipe.forEach(echipa => {
+                const opt1 = new Option(echipa, echipa);
+                const opt2 = new Option(echipa, echipa);
+                echipa1.appendChild(opt1);
+                echipa2.appendChild(opt2);
+            });
+        }
+
+        function actualizeazaScor() {
+            const grupa = document.getElementById('grupa').value;
+            const echipa1 = document.getElementById('echipa1').value;
+            const echipa2 = document.getElementById('echipa2').value;
+            const scor1 = parseInt(document.getElementById('scor1').value, 10);
+            const scor2 = parseInt(document.getElementById('scor2').value, 10);
+
+            if (echipa1 === echipa2) {
+                alert("Echipele trebuie să fie diferite.");
+                return;
+            }
+
+            if (isNaN(scor1) || isNaN(scor2)) {
+                alert("Introduceți scoruri valide.");
+                return;
+            }
+
+            const statistici = JSON.parse(localStorage.getItem('statistici_turneu')) || {};
+            if (!statistici[grupa]) statistici[grupa] = {};
+
+            const initStats = echipa => ({
+                echipa, MJ: 0, V: 0, E: 0, I: 0, GM: 0, GP: 0, GV: 0, P: 0
+            });
+
+            const s1 = statistici[grupa][echipa1] || initStats(echipa1);
+            const s2 = statistici[grupa][echipa2] || initStats(echipa2);
+
+            s1.MJ++; s2.MJ++;
+            s1.GM += scor1; s1.GP += scor2;
+            s2.GM += scor2; s2.GP += scor1;
+            s1.GV = s1.GM - s1.GP;
+            s2.GV = s2.GM - s2.GP;
+
+            if (scor1 > scor2) {
+                s1.V++; s1.P += 3;
+                s2.I++;
+            } else if (scor1 < scor2) {
+                s2.V++; s2.P += 3;
+                s1.I++;
+            } else {
+                s1.E++; s2.E++;
+                s1.P += 1; s2.P += 1;
+            }
+
+            statistici[grupa][echipa1] = s1;
+            statistici[grupa][echipa2] = s2;
+
+            localStorage.setItem('statistici_turneu', JSON.stringify(statistici));
+            afiseazaStatisticiTurneu();
+        }
+
+        window.onload = function() {
+            afiseazaStatisticiTurneu();
+            populeazaDropdownuri();
+            setInterval(afiseazaStatisticiTurneu, 300000); // 5 min
+        };
+    </script>
 </body>
 </html>
