@@ -2,7 +2,7 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Display Groups and Statistics</title>
   <style>
     body {
@@ -17,7 +17,7 @@
     h1 {
       text-align: center;
       color: white;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
       width: 50%;
       margin: 0 auto 20px auto;
       font-size: 32px;
@@ -34,13 +34,13 @@
     }
     .group h2 {
       color: white;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
       margin-top: 0;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      background-color: rgba(255, 255, 255, 0.8);
+      background-color: rgba(255,255,255,0.8);
     }
     th, td {
       border: 1px solid #ddd;
@@ -48,41 +48,106 @@
       text-align: left;
     }
     th {
-      background-color: rgba(242, 242, 242, 0.8);
+      background-color: rgba(242,242,242,0.8);
     }
     tr:nth-child(even) {
-      background-color: rgba(249, 249, 249, 0.8);
+      background-color: rgba(249,249,249,0.8);
     }
+
     .score-section {
       margin-top: 20px;
-      background-color: rgba(255, 255, 255, 0.8);
+      background-color: rgba(255,255,255,0.8);
       padding: 20px;
       border-radius: 5px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+      box-sizing: border-box;
+      position: relative;
     }
-    .display-score {
-      display: none;
-      font-size: 26px;
+
+    /* Titlul Scor cu stil asemănător cu grupele */
+    .score-section h2 {
+      margin-top: 0;
       text-align: center;
-      margin-top: 20px;
       color: white;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+      font-size: 32px;
+      font-family: Arial, sans-serif;
     }
-    .live-label {
-      color: red;
-      font-weight: bold;
-      margin-left: 10px;
+
+    /* Butonul mic în colțul dreapta sus */
+    #toggleSettingsBtn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 12px;
+      padding: 5px 8px;
+      cursor: pointer;
+      background-color: #444;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      user-select: none;
+      transition: background-color 0.3s ease;
     }
-    label {
+    #toggleSettingsBtn:hover {
+      background-color: #666;
+    }
+
+    .settings label {
       display: block;
       margin-top: 10px;
+      color: black;
+      font-weight: bold;
     }
-    input[type="number"] {
-      width: 60px;
-      text-align: center;
+    .settings select, .settings input[type="number"] {
+      width: 100%;
+      padding: 5px;
+      box-sizing: border-box;
+      margin-top: 5px;
+      font-size: 16px;
     }
     #toggleMatchCheckbox {
       margin-top: 20px;
     }
+    #secondMatchFields {
+      margin-top: 20px;
+    }
+
+    /* Afișarea scorului cu font și stil asemănător cu grupele */
+    .display-score {
+      margin-top: 20px;
+      font-size: 28px;
+      text-align: center;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+      font-family: Arial, sans-serif;
+      background-color: transparent;
+      padding: 15px;
+      border-radius: 5px;
+      user-select: none;
+    }
+
+    /* Stil pentru fiecare scor de meci în parte, cu În direct roșu lângă */
+    .match-score {
+      margin-bottom: 12px;
+      font-size: 28px;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+      font-family: Arial, sans-serif;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      user-select: none;
+    }
+    .live-label {
+      color: red;
+      font-weight: bold;
+      font-size: 20px;
+      user-select: none;
+    }
+
   </style>
 </head>
 <body>
@@ -91,6 +156,8 @@
 
   <div class="score-section">
     <h2>Scor</h2>
+
+    <button id="toggleSettingsBtn" onclick="toggleSettings()">Setări</button>
 
     <div class="settings">
       <label for="homeTeam1">Echipa Echipa 1A:</label>
@@ -105,9 +172,8 @@
       <label for="scoreAway1">Scor Echipa 1B:</label>
       <input type="number" id="scoreAway1" min="0" />
 
-  
       <label>
-        <input type="checkbox" id="toggleMatchCheckbox" checked>
+        <input type="checkbox" id="toggleMatchCheckbox" checked />
         Afișează și al doilea meci
       </label>
 
@@ -127,120 +193,218 @@
     </div>
 
     <div class="display-score" id="displayScore"></div>
-
-<br><br>
-    <button onclick="toggleSettings()">Ascunde/Arată Setări</button>
   </div>
 
-  <script>
-    function afiseazaStatisticiTurneu() {
-      const grupeTurneu = JSON.parse(localStorage.getItem('grupe_turneu'));
-      const statisticiTurneu = JSON.parse(localStorage.getItem('statistici_turneu'));
-      const statisticiTurneuDiv = document.getElementById('statisticiTurneu');
-      const homeTeamSelect1 = document.getElementById('homeTeam1');
-      const homeTeamSelect2 = document.getElementById('homeTeam2');
-      const awayTeamSelect1 = document.getElementById('awayTeam1');
-      const awayTeamSelect2 = document.getElementById('awayTeam2');
+<script>
+  const grupeTurneuDemo = {
+    "Grupa A": ["Echipa A1", "Echipa A2", "Echipa A3", "Echipa A4"],
+    "Grupa B": ["Echipa B1", "Echipa B2", "Echipa B3", "Echipa B4"]
+  };
 
-      if (grupeTurneu) {
-        statisticiTurneuDiv.innerHTML = '';
-        [homeTeamSelect1, homeTeamSelect2, awayTeamSelect1, awayTeamSelect2].forEach(select => {
-          select.innerHTML = '<option value="">Selectează Echipa</option>';
+  if (!localStorage.getItem('grupe_turneu')) {
+    localStorage.setItem('grupe_turneu', JSON.stringify(grupeTurneuDemo));
+  }
+
+  if (!localStorage.getItem('statistici_turneu')) {
+    const initStats = {
+      "Grupa A": {
+        "Echipa A1": { echipa:"Echipa A1", MJ:0, V:0, E:0, I:0, GM:0, GP:0, GV:0, P:0 },
+        "Echipa A2": { echipa:"Echipa A2", MJ:0, V:0, E:0, I:0, GM:0, GP:0, GV:0, P:0 },
+        "Echipa A3": { echipa:"Echipa A3", MJ:0, V:0, E:0, I:0, GM:0, GP:0, GV:0, P:0 },
+        "Echipa A4": { echipa:"Echipa A4", MJ:0, V:0, E:0, I:0, GM:0, GP:0, GV:0, P:0 }
+      },
+      "Grupa B": {
+        "Echipa B1": { echipa:"Echipa B1", MJ:0, V:0, E:0, I:0, GM:0, GP:0, GV:0, P:0 },
+        "Echipa B2": { echipa:"Echipa B2", MJ:0, V:0, E:0, I:0, GM:0, GP:0, GV:0, P:0 },
+        "Echipa B3": { echipa:"Echipa B3", MJ:0, V:0, E:0, I:0, GM:0, GP:0, GV:0, P:0 },
+        "Echipa B4": { echipa:"Echipa B4", MJ:0, V:0, E:0, I:0, GM:0, GP:0, GV:0, P:0 }
+      }
+    };
+    localStorage.setItem('statistici_turneu', JSON.stringify(initStats));
+  }
+
+  function afiseazaStatisticiTurneu() {
+    const grupeTurneu = JSON.parse(localStorage.getItem('grupe_turneu'));
+    const statisticiTurneu = JSON.parse(localStorage.getItem('statistici_turneu'));
+    const statisticiTurneuDiv = document.getElementById('statisticiTurneu');
+    const homeTeamSelect1 = document.getElementById('homeTeam1');
+    const homeTeamSelect2 = document.getElementById('homeTeam2');
+    const awayTeamSelect1 = document.getElementById('awayTeam1');
+    const awayTeamSelect2 = document.getElementById('awayTeam2');
+
+    if (grupeTurneu) {
+      statisticiTurneuDiv.innerHTML = '';
+      homeTeamSelect1.innerHTML = '<option value="">Selectează Echipa</option>';
+      homeTeamSelect2.innerHTML = '<option value="">Selectează Echipa</option>';
+      awayTeamSelect1.innerHTML = '<option value="">Selectează Echipa</option>';
+      awayTeamSelect2.innerHTML = '<option value="">Selectează Echipa</option>';
+
+      Object.keys(grupeTurneu).forEach(grupa => {
+        const echipe = grupeTurneu[grupa];
+
+        // Adaugă la dropdown-uri echipele din toate grupele (fără duplicat)
+        echipe.forEach(echipa => {
+          if (![...homeTeamSelect1.options].some(o => o.value === echipa)) {
+            homeTeamSelect1.innerHTML += `<option value="${echipa}">${echipa}</option>`;
+            homeTeamSelect2.innerHTML += `<option value="${echipa}">${echipa}</option>`;
+            awayTeamSelect1.innerHTML += `<option value="${echipa}">${echipa}</option>`;
+            awayTeamSelect2.innerHTML += `<option value="${echipa}">${echipa}</option>`;
+          }
         });
 
-        for (const grupa in grupeTurneu) {
-          let groupDiv = document.createElement('div');
-          groupDiv.className = 'group';
-          let html = `
-            <h2>${grupa}</h2>
-            <table>
+        const grupaDiv = document.createElement('div');
+        grupaDiv.className = 'group';
+        grupaDiv.innerHTML = `<h2>${grupa}</h2>`;
+        grupaDiv.innerHTML += `
+          <table>
+            <thead>
               <tr>
-                <th>Echipă</th>
+                <th>Echipa</th>
                 <th>MJ</th>
                 <th>V</th>
                 <th>E</th>
-                <th>Î</th>
+                <th>I</th>
                 <th>GM</th>
                 <th>GP</th>
                 <th>GV</th>
                 <th>P</th>
-              </tr>`;
-          grupeTurneu[grupa].forEach(echipa => {
-            const stats = statisticiTurneu?.[grupa]?.[echipa] || {
-              echipa: echipa, MJ: 0, V: 0, E: 0, I: 0, GM: 0, GP: 0, GV: 0, P: 0
-            };
-            html += `
-              <tr>
-                <td>${stats.echipa}</td>
-                <td>${stats.MJ}</td>
-                <td>${stats.V}</td>
-                <td>${stats.E}</td>
-                <td>${stats.I}</td>
-                <td>${stats.GM}</td>
-                <td>${stats.GP}</td>
-                <td>${stats.GV}</td>
-                <td>${stats.P}</td>
-              </tr>`;
-
-            [homeTeamSelect1, homeTeamSelect2, awayTeamSelect1, awayTeamSelect2].forEach(select => {
-              let option = document.createElement('option');
-              option.value = echipa;
-              option.textContent = echipa;
-              select.appendChild(option.cloneNode(true));
-            });
-          });
-          html += `</table>`;
-          groupDiv.innerHTML = html;
-          statisticiTurneuDiv.appendChild(groupDiv);
-        }
-      } else {
-        statisticiTurneuDiv.innerHTML = '<p>Nu există date disponibile pentru grupe.</p>';
-      }
-    }
-
-    function toggleSettings() {
-      const settings = document.querySelector('.settings');
-      const displayScore = document.getElementById('displayScore');
-      const showSecondMatch = document.getElementById('toggleMatchCheckbox').checked;
-
-      if (settings.style.display === 'none') {
-        settings.style.display = 'block';
-        displayScore.style.display = 'none';
-      } else {
-        settings.style.display = 'none';
-        displayScore.style.display = 'block';
-
-        const home1 = document.getElementById('homeTeam1').value || 'Echipa Acasă 1';
-        const away1 = document.getElementById('awayTeam1').value || 'Echipa Oaspete 1';
-        const scoreHome1 = document.getElementById('scoreHome1').value || 0;
-        const scoreAway1 = document.getElementById('scoreAway1').value || 0;
-
-        let html = `<p>${home1} vs ${away1}: ${scoreHome1} - ${scoreAway1} <span class="live-label">În direct</span></p>`;
-
-        if (showSecondMatch) {
-          const home2 = document.getElementById('homeTeam2').value || 'Echipa Acasă 2';
-          const away2 = document.getElementById('awayTeam2').value || 'Echipa Oaspete 2';
-          const scoreHome2 = document.getElementById('scoreHome2').value || 0;
-          const scoreAway2 = document.getElementById('scoreAway2').value || 0;
-          html += `<p>${home2} vs ${away2}: ${scoreHome2} - ${scoreAway2} <span class="live-label">În direct</span></p>`;
-        }
-
-        displayScore.innerHTML = html;
-      }
-    }
-
-    // Ascunde sau arată al doilea meci
-    document.addEventListener('DOMContentLoaded', () => {
-      const toggleCheckbox = document.getElementById('toggleMatchCheckbox');
-      const secondMatchFields = document.getElementById('secondMatchFields');
-
-      toggleCheckbox.addEventListener('change', () => {
-        secondMatchFields.style.display = toggleCheckbox.checked ? 'block' : 'none';
+              </tr>
+            </thead>
+            <tbody>
+              ${Object.values(statisticiTurneu[grupa]).map(echipa =>
+                `<tr>
+                  <td>${echipa.echipa}</td>
+                  <td>${echipa.MJ}</td>
+                  <td>${echipa.V}</td>
+                  <td>${echipa.E}</td>
+                  <td>${echipa.I}</td>
+                  <td>${echipa.GM}</td>
+                  <td>${echipa.GP}</td>
+                  <td>${echipa.GV}</td>
+                  <td>${echipa.P}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        `;
+        statisticiTurneuDiv.appendChild(grupaDiv);
       });
+    }
+  }
 
-      afiseazaStatisticiTurneu();
-      setInterval(afiseazaStatisticiTurneu, 300000); // Refresh la 5 minute
+  function loadScoreData() {
+    const scoreData = JSON.parse(localStorage.getItem('scoreData'));
+    if (scoreData) {
+      document.getElementById('homeTeam1').value = scoreData.homeTeam1 || "";
+      document.getElementById('awayTeam1').value = scoreData.awayTeam1 || "";
+      document.getElementById('scoreHome1').value = scoreData.scoreHome1 || "";
+      document.getElementById('scoreAway1').value = scoreData.scoreAway1 || "";
+      document.getElementById('toggleMatchCheckbox').checked = scoreData.showSecondMatch !== false;
+      document.getElementById('homeTeam2').value = scoreData.homeTeam2 || "";
+      document.getElementById('awayTeam2').value = scoreData.awayTeam2 || "";
+      document.getElementById('scoreHome2').value = scoreData.scoreHome2 || "";
+      document.getElementById('scoreAway2').value = scoreData.scoreAway2 || "";
+    }
+    toggleSecondMatch();
+  }
+
+  function saveScoreData() {
+    const data = {
+      homeTeam1: document.getElementById('homeTeam1').value,
+      awayTeam1: document.getElementById('awayTeam1').value,
+      scoreHome1: document.getElementById('scoreHome1').value,
+      scoreAway1: document.getElementById('scoreAway1').value,
+      showSecondMatch: document.getElementById('toggleMatchCheckbox').checked,
+      homeTeam2: document.getElementById('homeTeam2').value,
+      awayTeam2: document.getElementById('awayTeam2').value,
+      scoreHome2: document.getElementById('scoreHome2').value,
+      scoreAway2: document.getElementById('scoreAway2').value,
+    };
+    localStorage.setItem('scoreData', JSON.stringify(data));
+  }
+
+  function updateScoreDisplay() {
+    const homeTeam1 = document.getElementById('homeTeam1').value;
+    const awayTeam1 = document.getElementById('awayTeam1').value;
+    const scoreHome1 = document.getElementById('scoreHome1').value;
+    const scoreAway1 = document.getElementById('scoreAway1').value;
+    const showSecondMatch = document.getElementById('toggleMatchCheckbox').checked;
+    const homeTeam2 = document.getElementById('homeTeam2').value;
+    const awayTeam2 = document.getElementById('awayTeam2').value;
+    const scoreHome2 = document.getElementById('scoreHome2').value;
+    const scoreAway2 = document.getElementById('scoreAway2').value;
+
+    let html = '';
+
+    if (homeTeam1 && awayTeam1 && scoreHome1 !== '' && scoreAway1 !== '') {
+      html += `
+        <div class="match-score">
+          ${homeTeam1} ${scoreHome1} - ${scoreAway1} ${awayTeam1}
+          <span class="live-label">În direct</span>
+        </div>`;
+    }
+
+    if (showSecondMatch && homeTeam2 && awayTeam2 && scoreHome2 !== '' && scoreAway2 !== '') {
+      html += `
+        <div class="match-score">
+          ${homeTeam2} ${scoreHome2} - ${scoreAway2} ${awayTeam2}
+          <span class="live-label">În direct</span>
+        </div>`;
+    }
+
+    document.getElementById('displayScore').innerHTML = html;
+  }
+
+  function toggleSecondMatch() {
+    const show = document.getElementById('toggleMatchCheckbox').checked;
+    document.getElementById('secondMatchFields').style.display = show ? 'block' : 'none';
+  }
+
+  function toggleSettings() {
+    const settingsDiv = document.querySelector('.settings');
+    if (settingsDiv.style.display === 'none' || settingsDiv.style.display === '') {
+      settingsDiv.style.display = 'block';
+    } else {
+      settingsDiv.style.display = 'none';
+    }
+  }
+
+  function addEventListeners() {
+    const inputs = [
+      'homeTeam1', 'awayTeam1', 'scoreHome1', 'scoreAway1',
+      'toggleMatchCheckbox',
+      'homeTeam2', 'awayTeam2', 'scoreHome2', 'scoreAway2'
+    ];
+    inputs.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => {
+          saveScoreData();
+          updateScoreDisplay();
+        });
+        if (id === 'toggleMatchCheckbox') {
+          el.addEventListener('change', () => {
+            toggleSecondMatch();
+            saveScoreData();
+            updateScoreDisplay();
+          });
+        }
+      }
     });
-  </script>
+  }
+
+  // Initializări
+  window.onload = () => {
+    afiseazaStatisticiTurneu();
+    loadScoreData();
+    updateScoreDisplay();
+    addEventListeners();
+    toggleSecondMatch();
+  };
+
+setTimeout(() => {
+  location.reload();
+}, 23 * 60 * 1000); // 23 minute * 60 sec * 1000 ms
+
+</script>
 </body>
 </html>
