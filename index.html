@@ -154,6 +154,10 @@
             display: none;
         }
 
+        .edit-mode .team-name {
+            display: none;
+        }
+
         .display-mode .team-select, .display-mode .score-input {
             display: none;
         }
@@ -162,9 +166,14 @@
             display: flex;
         }
 
+        .display-mode .team-name {
+            display: block;
+        }
+
         .team-name {
             font-weight: bold;
             margin-bottom: 5px;
+            min-height: 24px;
         }
     </style>
 </head>
@@ -286,9 +295,11 @@
                             <span>-</span>
                             <span>${match.score2}</span>
                         </div>
-                        <input type="number" min="0" class="score-input" data-match="${index}" data-team="1" value="${match.score1}">
-                        <span>-</span>
-                        <input type="number" min="0" class="score-input" data-match="${index}" data-team="2" value="${match.score2}">
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <input type="number" min="0" class="score-input" data-match="${index}" data-team="1" value="${match.score1}">
+                            <span>-</span>
+                            <input type="number" min="0" class="score-input" data-match="${index}" data-team="2" value="${match.score2}">
+                        </div>
                     </div>
                 `;
                 
@@ -321,7 +332,7 @@
             });
 
             document.querySelectorAll('.score-input').forEach(input => {
-                input.addEventListener('change', function() {
+                input.addEventListener('input', function() {
                     const matchIndex = this.dataset.match;
                     const teamNum = this.dataset.team;
                     const savedMatches = JSON.parse(localStorage.getItem('live_matches')) || [];
@@ -336,8 +347,12 @@
                         localStorage.setItem('live_matches', JSON.stringify(savedMatches));
                         
                         // Update big score display
-                        const scoreElement = this.closest('.score').querySelector(teamNum === '1' ? '.big-score span:first-child' : '.big-score span:last-child');
-                        scoreElement.textContent = value;
+                        const bigScoreDiv = this.closest('.match').querySelector('.big-score');
+                        if (teamNum === '1') {
+                            bigScoreDiv.querySelector('span:first-child').textContent = value;
+                        } else {
+                            bigScoreDiv.querySelector('span:last-child').textContent = value;
+                        }
                     }
                 });
             });
@@ -352,14 +367,16 @@
 
         // Toggle between edit and display modes
         function toggleMode(editMode) {
-            const container = document.getElementById('liveMatchesContainer');
-            if (editMode) {
-                container.classList.add('edit-mode');
-                container.classList.remove('display-mode');
-            } else {
-                container.classList.add('display-mode');
-                container.classList.remove('edit-mode');
-            }
+            const matches = document.querySelectorAll('.match');
+            matches.forEach(match => {
+                if (editMode) {
+                    match.classList.add('edit-mode');
+                    match.classList.remove('display-mode');
+                } else {
+                    match.classList.add('display-mode');
+                    match.classList.remove('edit-mode');
+                }
+            });
         }
 
         // Helper function to get team options for select elements
