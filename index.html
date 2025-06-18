@@ -56,6 +56,7 @@
             background-color: rgba(255, 255, 255, 0.8);
             padding: 20px;
             border-radius: 10px;
+            position: relative;
         }
         .live-matches h2 {
             color: #333;
@@ -78,6 +79,9 @@
             margin: 10px 0;
             cursor: pointer;
             border-radius: 5px;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
         }
     </style>
 </head>
@@ -96,7 +100,6 @@
             const grupeTurneu = JSON.parse(localStorage.getItem('grupe_turneu'));
             const statisticiTurneu = JSON.parse(localStorage.getItem('statistici_turneu'));
             const statisticiTurneuDiv = document.getElementById('statisticiTurneu');
-
             if (grupeTurneu) {
                 statisticiTurneuDiv.innerHTML = ''; // Clear previous content
                 for (const grupa in grupeTurneu) {
@@ -147,26 +150,15 @@
 
         // Function to extract matches from HTML elements
         function extractMatches() {
-            const matchItems = document.querySelectorAll('.match-item');
-            const matches = [];
-
-            matchItems.forEach((item, index) => {
-                const span = item.querySelector('span');
-                const matchInfo = span.textContent || span.innerText;
-                const teams = matchInfo.match(/vs\s([^|]+)\s\|\s([^\s]+)/);
-                const time = matchInfo.match(/^\*\*([^\*]+)\*\*/);
-                const field = matchInfo.match(/\|\s([^\|]+)\s*$/);
-
-                if (teams && teams.length >= 3) {
-                    matches.push({
-                        time: time ? time[1] : 'Unknown Time',
-                        echipa1: teams[1].trim(),
-                        echipa2: teams[2].trim(),
-                        field: field ? field[1].trim() : 'Unknown Field'
-                    });
-                }
-            });
-
+            // Mock data for demonstration purposes
+            const matches = [
+                { time: '12:00', echipa1: 'Team A', echipa2: 'Team B', field: 'Field 1' },
+                { time: '13:00', echipa1: 'Team C', echipa2: 'Team D', field: 'Field 2' },
+                { time: '14:00', echipa1: 'Team E', echipa2: 'Team F', field: 'Field 3' },
+                { time: '15:00', echipa1: 'Team G', echipa2: 'Team H', field: 'Field 4' },
+                { time: '16:00', echipa1: 'Team I', echipa2: 'Team J', field: 'Field 5' },
+                { time: '17:00', echipa1: 'Team K', echipa2: 'Team L', field: 'Field 6' },
+            ];
             return matches;
         }
 
@@ -175,12 +167,10 @@
         function showLiveMatches() {
             const matches = extractMatches();
             const liveMatchesContainer = document.getElementById('liveMatchesContainer');
-
             if (matches.length === 0) {
                 liveMatchesContainer.innerHTML = '<p>Nu există meciuri în direct.</p>';
                 return;
             }
-
             liveMatchesContainer.innerHTML = '';
             for (let i = currentMatchIndex; i < currentMatchIndex + 2 && i < matches.length; i++) {
                 const match = matches[i];
