@@ -1,216 +1,245 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Display Groups and Statistics</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            background-size: cover;
-            background-position: center;
-            background-repeat: repeat;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-            width: 50%;
-            margin: 0 auto 20px auto;
-        }
-        .groups-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        .group {
-            flex: 1 1 calc(50% - 20px);
-            margin-bottom: 20px;
-            box-sizing: border-box;
-        }
-        .group h2 {
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-            margin-top: 0;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: rgba(255, 255, 255, 0.8);
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: rgba(242, 242, 242, 0.8);
-        }
-        tr:nth-child(even) {
-            background-color: rgba(249, 249, 249, 0.8);
-        }
-        .live-matches {
-            margin-top: 30px;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 20px;
-            border-radius: 10px;
-            position: relative;
-        }
-        .live-matches h2 {
-            color: #333;
-        }
-        .match {
-            margin-bottom: 10px;
-            padding: 10px;
-            background-color: rgba(249, 249, 249, 0.8);
-            border-radius: 5px;
-        }
-        button {
-            background-color: #4CAF50;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 10px 0;
-            cursor: pointer;
-            border-radius: 5px;
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Display Groups and Statistics</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-size: cover;
+      background-position: center;
+      background-repeat: repeat;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      width: 50%;
+      margin: 0 auto 20px auto;
+      font-size: 32px;
+    }
+    .groups-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .group {
+      flex: 1 1 calc(50% - 20px);
+      margin-bottom: 20px;
+      box-sizing: border-box;
+    }
+    .group h2 {
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      margin-top: 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: rgba(255, 255, 255, 0.8);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: rgba(242, 242, 242, 0.8);
+    }
+    tr:nth-child(even) {
+      background-color: rgba(249, 249, 249, 0.8);
+    }
+    .score-section {
+      margin-top: 20px;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border-radius: 5px;
+    }
+    .display-score {
+      display: none;
+      font-size: 26px;
+      text-align: center;
+      margin-top: 20px;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    }
+    .live-label {
+      color: red;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input[type="number"] {
+      width: 60px;
+      text-align: center;
+    }
+    #toggleMatchCheckbox {
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
-    <h1>Grupe și Statistici Turneu</h1>
-    <div class="groups-container" id="statisticiTurneu"></div>
-    <div class="live-matches">
-        <h2>Meciuri în Direct</h2>
-        <div id="liveMatchesContainer"></div>
-        <button onclick="showNextMatches()">Next</button>
+  <h1>Grupe și Statistici Turneu</h1>
+  <div class="groups-container" id="statisticiTurneu"></div>
+
+  <div class="score-section">
+    <h2>Scor</h2>
+
+    <div class="settings">
+      <label for="homeTeam1">Echipa Echipa 1A:</label>
+      <select id="homeTeam1"><option value="">Selectează Echipa</option></select>
+
+      <label for="awayTeam1">Echipa Echipa 1B:</label>
+      <select id="awayTeam1"><option value="">Selectează Echipa</option></select>
+
+      <label for="scoreHome1">Scor Echipa 1A:</label>
+      <input type="number" id="scoreHome1" min="0" />
+
+      <label for="scoreAway1">Scor Echipa 1B:</label>
+      <input type="number" id="scoreAway1" min="0" />
+
+  
+      <label>
+        <input type="checkbox" id="toggleMatchCheckbox" checked>
+        Afișează și al doilea meci
+      </label>
+
+      <div id="secondMatchFields">
+        <label for="homeTeam2">Echipa 2A:</label>
+        <select id="homeTeam2"><option value="">Selectează Echipa</option></select>
+
+        <label for="awayTeam2">Echipa 2B:</label>
+        <select id="awayTeam2"><option value="">Selectează Echipa</option></select>
+
+        <label for="scoreHome2">Scor Echipa 2A:</label>
+        <input type="number" id="scoreHome2" min="0" />
+
+        <label for="scoreAway2">Scor Echipa 2B:</label>
+        <input type="number" id="scoreAway2" min="0" />
+      </div>
     </div>
-    <script>
-        // Function to display tournament statistics
-        function afiseazaStatisticiTurneu() {
-            // Retrieve data from localStorage
-            const grupeTurneu = JSON.parse(localStorage.getItem('grupe_turneu'));
-            const statisticiTurneu = JSON.parse(localStorage.getItem('statistici_turneu'));
-            const statisticiTurneuDiv = document.getElementById('statisticiTurneu');
-            if (grupeTurneu) {
-                statisticiTurneuDiv.innerHTML = ''; // Clear previous content
-                for (const grupa in grupeTurneu) {
-                    let groupDiv = document.createElement('div');
-                    groupDiv.className = 'group';
-                    let html = `
-                        <h2>${grupa}</h2>
-                        <table>
-                            <tr>
-                                <th>Echipă</th>
-                                <th>MJ</th>
-                                <th>V</th>
-                                <th>E</th>
-                                <th>Î</th>
-                                <th>GM</th>
-                                <th>GP</th>
-                                <th>GV</th>
-                                <th>P</th>
-                            </tr>`;
-                    // Display teams in the group
-                    grupeTurneu[grupa].forEach(echipa => {
-                        // Get statistics for the team, if available
-                        const stats = statisticiTurneu?.[grupa]?.[echipa] || {
-                            echipa: echipa,
-                            MJ: 0, V: 0, E: 0, I: 0, GM: 0, GP: 0, GV: 0, P: 0
-                        };
-                        html += `
-                            <tr>
-                                <td>${stats.echipa}</td>
-                                <td>${stats.MJ}</td>
-                                <td>${stats.V}</td>
-                                <td>${stats.E}</td>
-                                <td>${stats.I}</td>
-                                <td>${stats.GM}</td>
-                                <td>${stats.GP}</td>
-                                <td>${stats.GV}</td>
-                                <td>${stats.P}</td>
-                            </tr>`;
-                    });
-                    html += `</table>`;
-                    groupDiv.innerHTML = html;
-                    statisticiTurneuDiv.appendChild(groupDiv);
-                }
-            } else {
-                statisticiTurneuDiv.innerHTML = '<p>Nu există date disponibile pentru grupe.</p>';
-            }
-        }
 
-        // Function to extract matches from HTML elements
-        function extractMatches() {
-            const matchItems = document.querySelectorAll('.match-item');
-            const matches = [];
-            matchItems.forEach((item) => {
-                const span = item.querySelector('span');
-                const matchInfo = span.textContent || span.innerText;
-                const timeMatch = matchInfo.match(/^\*\*(.*?)\*\*/);
-                const teamsMatch = matchInfo.match(/vs\s(.*?)\s\|/);
-                const fieldMatch = matchInfo.match(/\|\s(.*?)\s*$/);
+    <div class="display-score" id="displayScore"></div>
 
-                const time = timeMatch ? timeMatch[1].trim() : 'Unknown Time';
-                const teams = teamsMatch ? teamsMatch[1].split(/\s*\|\s*/) : ['Unknown Team', 'Unknown Team'];
-                const field = fieldMatch ? fieldMatch[1].trim() : 'Unknown Field';
+<br><br>
+    <button onclick="toggleSettings()">Ascunde/Arată Setări</button>
+  </div>
 
-                matches.push({
-                    time: time,
-                    echipa1: teams[0].trim(),
-                    echipa2: teams[1].trim(),
-                    field: field
-                });
+  <script>
+    function afiseazaStatisticiTurneu() {
+      const grupeTurneu = JSON.parse(localStorage.getItem('grupe_turneu'));
+      const statisticiTurneu = JSON.parse(localStorage.getItem('statistici_turneu'));
+      const statisticiTurneuDiv = document.getElementById('statisticiTurneu');
+      const homeTeamSelect1 = document.getElementById('homeTeam1');
+      const homeTeamSelect2 = document.getElementById('homeTeam2');
+      const awayTeamSelect1 = document.getElementById('awayTeam1');
+      const awayTeamSelect2 = document.getElementById('awayTeam2');
+
+      if (grupeTurneu) {
+        statisticiTurneuDiv.innerHTML = '';
+        [homeTeamSelect1, homeTeamSelect2, awayTeamSelect1, awayTeamSelect2].forEach(select => {
+          select.innerHTML = '<option value="">Selectează Echipa</option>';
+        });
+
+        for (const grupa in grupeTurneu) {
+          let groupDiv = document.createElement('div');
+          groupDiv.className = 'group';
+          let html = `
+            <h2>${grupa}</h2>
+            <table>
+              <tr>
+                <th>Echipă</th>
+                <th>MJ</th>
+                <th>V</th>
+                <th>E</th>
+                <th>Î</th>
+                <th>GM</th>
+                <th>GP</th>
+                <th>GV</th>
+                <th>P</th>
+              </tr>`;
+          grupeTurneu[grupa].forEach(echipa => {
+            const stats = statisticiTurneu?.[grupa]?.[echipa] || {
+              echipa: echipa, MJ: 0, V: 0, E: 0, I: 0, GM: 0, GP: 0, GV: 0, P: 0
+            };
+            html += `
+              <tr>
+                <td>${stats.echipa}</td>
+                <td>${stats.MJ}</td>
+                <td>${stats.V}</td>
+                <td>${stats.E}</td>
+                <td>${stats.I}</td>
+                <td>${stats.GM}</td>
+                <td>${stats.GP}</td>
+                <td>${stats.GV}</td>
+                <td>${stats.P}</td>
+              </tr>`;
+
+            [homeTeamSelect1, homeTeamSelect2, awayTeamSelect1, awayTeamSelect2].forEach(select => {
+              let option = document.createElement('option');
+              option.value = echipa;
+              option.textContent = echipa;
+              select.appendChild(option.cloneNode(true));
             });
-            return matches;
+          });
+          html += `</table>`;
+          groupDiv.innerHTML = html;
+          statisticiTurneuDiv.appendChild(groupDiv);
+        }
+      } else {
+        statisticiTurneuDiv.innerHTML = '<p>Nu există date disponibile pentru grupe.</p>';
+      }
+    }
+
+    function toggleSettings() {
+      const settings = document.querySelector('.settings');
+      const displayScore = document.getElementById('displayScore');
+      const showSecondMatch = document.getElementById('toggleMatchCheckbox').checked;
+
+      if (settings.style.display === 'none') {
+        settings.style.display = 'block';
+        displayScore.style.display = 'none';
+      } else {
+        settings.style.display = 'none';
+        displayScore.style.display = 'block';
+
+        const home1 = document.getElementById('homeTeam1').value || 'Echipa Acasă 1';
+        const away1 = document.getElementById('awayTeam1').value || 'Echipa Oaspete 1';
+        const scoreHome1 = document.getElementById('scoreHome1').value || 0;
+        const scoreAway1 = document.getElementById('scoreAway1').value || 0;
+
+        let html = `<p>${home1} vs ${away1}: ${scoreHome1} - ${scoreAway1} <span class="live-label">În direct</span></p>`;
+
+        if (showSecondMatch) {
+          const home2 = document.getElementById('homeTeam2').value || 'Echipa Acasă 2';
+          const away2 = document.getElementById('awayTeam2').value || 'Echipa Oaspete 2';
+          const scoreHome2 = document.getElementById('scoreHome2').value || 0;
+          const scoreAway2 = document.getElementById('scoreAway2').value || 0;
+          html += `<p>${home2} vs ${away2}: ${scoreHome2} - ${scoreAway2} <span class="live-label">În direct</span></p>`;
         }
 
-        // Function to display live matches
-        let currentMatchIndex = 0;
-        function showLiveMatches() {
-            const matches = extractMatches();
-            const liveMatchesContainer = document.getElementById('liveMatchesContainer');
-            if (matches.length === 0) {
-                liveMatchesContainer.innerHTML = '<p>Nu există meciuri în direct.</p>';
-                return;
-            }
-            liveMatchesContainer.innerHTML = '';
-            for (let i = currentMatchIndex; i < currentMatchIndex + 2 && i < matches.length; i++) {
-                const match = matches[i];
-                const matchDiv = document.createElement('div');
-                matchDiv.className = 'match';
-                matchDiv.innerHTML = `
-                    <p><strong>${match.time}</strong> | ${match.field} | <strong>${match.echipa1}</strong> vs <strong>${match.echipa2}</strong></p>
-                `;
-                liveMatchesContainer.appendChild(matchDiv);
-            }
-        }
+        displayScore.innerHTML = html;
+      }
+    }
 
-        // Function to show next matches
-        function showNextMatches() {
-            const matches = extractMatches();
-            if (currentMatchIndex + 2 < matches.length) {
-                currentMatchIndex += 2;
-                showLiveMatches();
-            } else {
-                alert('Nu mai sunt meciuri de afișat.');
-            }
-        }
+    // Ascunde sau arată al doilea meci
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleCheckbox = document.getElementById('toggleMatchCheckbox');
+      const secondMatchFields = document.getElementById('secondMatchFields');
 
-        // Display data on page load and refresh every 5 minutes
-        window.onload = function() {
-            afiseazaStatisticiTurneu();
-            showLiveMatches();
-            setInterval(afiseazaStatisticiTurneu, 300000); // Refresh every 5 minutes (300,000 milliseconds)
-        };
-    </script>
+      toggleCheckbox.addEventListener('change', () => {
+        secondMatchFields.style.display = toggleCheckbox.checked ? 'block' : 'none';
+      });
+
+      afiseazaStatisticiTurneu();
+      setInterval(afiseazaStatisticiTurneu, 300000); // Refresh la 5 minute
+    });
+  </script>
 </body>
 </html>
